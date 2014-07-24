@@ -51,7 +51,6 @@ define([ 'dojo/has', 'require' ], function (has, require) {
 		});
 	}
 	else {
-		// TODO: Eventually, the Boilerplate will actually have a useful server implementation here :)
-		console.log('Hello from the server!');
+		console.error('It doesn\'t make sense to run this outside of a browser.');
 	}
 });
