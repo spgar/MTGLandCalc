@@ -22,8 +22,13 @@ define([ 'dojo/has', 'require' ], function (has, require) {
 
     /* This only runs in the browser. */
 	if (has('host-browser')) {
-		require([ 'dojo/domReady!' ], function () {
+		require([ './widgets/ManaSymbolQuantity', 'dojo/domReady!' ], function (ManaSymbolQuantity)
+        {
+            app.msWhite = new ManaSymbolQuantity({color: 'White'}).placeAt(document.body);
+            app.msWhite.startup();
             
+            app.msBlue = new ManaSymbolQuantity({color: 'Blue'}).placeAt(document.body);
+            app.msBlue.startup();
 		});
 	}
 	else {
