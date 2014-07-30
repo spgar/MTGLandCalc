@@ -1,3 +1,19 @@
 <div class="ManaSymbolQuantity">
-	<div>${color}</div>
+	${color}
+	<input data-dojo-type="dijit/form/NumberSpinner"
+		data-dojo-attach-point="singleSymbolQuantity"
+		name="singleSymbolQuantity"
+		value="0"
+		data-dojo-props="constraints:{min:0,places:0}"
+		style="width:100px"
+		/>
+
+	${color}${color}
+	<input data-dojo-type="dijit/form/NumberSpinner"
+		data-dojo-attach-point="doubleSymbolQuantity"
+		name="doubleSymbolQuantity"
+		value="0"
+		data-dojo-props="constraints:{min:0,places:0}"
+		style="width:100px"
+		/>
 </div>
