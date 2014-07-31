@@ -21,6 +21,5 @@ define([
 			return this.doubleSymbolQuantity.get("value");
 		}
 
-		
 	});
 });

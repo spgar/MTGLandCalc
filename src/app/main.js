@@ -17,45 +17,105 @@
  * More information about everything described about the loader throughout this file can be found at
  * <http://dojotoolkit.org/reference-guide/loader/amd.html>.
  */
-define([ 'dojo/has', 'require' ], function (has, require) {
+define(['dojo/has', 'require'], function(has, require) {
 	var app = {};
 
-	function getConstant() {
-		return 1;
+	function getManaSymbolQuantities() {
+		var doubleSymbolMultiplier = 1.5;
+		return {
+			w: app.msWhite.getSingleSymbolQuantity() + (doubleSymbolMultiplier * app.msWhite.getDoubleSymbolQuantity()),
+			u: app.msBlue.getSingleSymbolQuantity() + (doubleSymbolMultiplier * app.msBlue.getDoubleSymbolQuantity()),
+			b: app.msBlack.getSingleSymbolQuantity() + (doubleSymbolMultiplier * app.msBlack.getDoubleSymbolQuantity()),
+			r: app.msRed.getSingleSymbolQuantity() + (doubleSymbolMultiplier * app.msRed.getDoubleSymbolQuantity()),
+			g: app.msGreen.getSingleSymbolQuantity() + (doubleSymbolMultiplier * app.msGreen.getDoubleSymbolQuantity())
+		};
 	}
 
-	/* This only runs in the browser. */
+	function getIndexOfMaxValue(arr) {
+		var currentMax = arr[0];
+		var currentIndex = 0;
+
+		for (var i = 1; i < arr.length; ++i) {
+			if (arr[i] > currentMax) {
+				currentIndex = i;
+				currentMax = arr[i];
+			}
+		}
+		return currentIndex;
+	}
+
+	function manaSymbolsToLandQuantities(mana, totalSymbols, totalLands) {
+		// Basic initial calculation.
+		var plains = (mana.w / totalSymbols) * totalLands;
+		var islands = (mana.u / totalSymbols) * totalLands;
+		var swamps = (mana.b / totalSymbols) * totalLands;
+		var mountains = (mana.r / totalSymbols) * totalLands;
+		var forests = (mana.g / totalSymbols) * totalLands;
+
+		// At this point we need to deal with fractions.
+		var floorPlains = Math.floor(plains);
+		var floorIslands = Math.floor(islands);
+		var floorSwamps = Math.floor(swamps);
+		var floorMountains = Math.floor(mountains);
+		var floorForests = Math.floor(forests);
+
+		while (floorPlains + floorIslands + floorSwamps + floorMountains + floorForests < totalLands) {
+			var indexToBump = getIndexOfMaxValue([plains - floorPlains, islands - floorIslands, swamps - floorSwamps, mountains - floorMountains, forests - floorForests]);
+			if (indexToBump == 0) {
+				++floorPlains;
+			} else if (indexToBump == 1) {
+				++floorIslands;
+			} else if (indexToBump == 2) {
+				++floorSwamps;
+			} else if (indexToBump == 3) {
+				++floorMountains;
+			} else if (indexToBump == 4) {
+				++floorForests;
+			}
+		}
+
+		return {
+			numPlains: floorPlains,
+			numIslands: floorIslands,
+			numSwamps: floorSwamps,
+			numMountains: floorMountains,
+			numForests: floorForests
+		};
+	}
+
+	// This only runs in the browser.
 	if (has('host-browser')) {
-		require(['dojo/dom', './widgets/ManaSymbolQuantity', 'dijit/Dialog', 'dijit/form/NumberSpinner', 'dojo/domReady!'], function(dom, ManaSymbolQuantity, Dialog)
+		require(['dojo/dom', './widgets/ManaSymbolQuantity', 'dijit/Dialog', 'dijit/form/NumberSpinner', 'dijit/form/Button', 'dojo/domReady!'], function(dom, ManaSymbolQuantity, Dialog, NumberSpinner, Button)
 		{
-			/* Initialize the 5 mana symbol quantity widgets */
+			// Initialize the 5 mana symbol quantity widgets
 			app.msWhite = new ManaSymbolQuantity({color: 'W'}).placeAt(document.body);
 			app.msBlue = new ManaSymbolQuantity({ color: 'U' }).placeAt(document.body);
 			app.msBlack = new ManaSymbolQuantity({ color: 'B' }).placeAt(document.body);
 			app.msRed = new ManaSymbolQuantity({ color: 'R' }).placeAt(document.body);
 			app.msGreen = new ManaSymbolQuantity({ color: 'G' }).placeAt(document.body);
-
 			app.msWhite.startup();
 			app.msBlue.startup();
 			app.msBlack.startup();
 			app.msRed.startup();
 			app.msGreen.startup();
 
-			var submitButton = dom.byId("submitButton");
-			dojo.connect(submitButton, "onclick", function(evt) {
-				/* Figure out all of the mana symbol quantities that we're dealing with. */
-				var w = app.msWhite.getSingleSymbolQuantity();
-				var ww = app.msWhite.getDoubleSymbolQuantity();
-				var u = app.msBlue.getSingleSymbolQuantity();
-				var uu = app.msBlue.getDoubleSymbolQuantity();
-				var b = app.msBlack.getSingleSymbolQuantity();
-				var bb = app.msBlack.getDoubleSymbolQuantity();
-				var r = app.msRed.getSingleSymbolQuantity();
-				var rr = app.msRed.getDoubleSymbolQuantity();
-				var g = app.msGreen.getSingleSymbolQuantity();
-				var gg = app.msGreen.getDoubleSymbolQuantity();
+			app.totalLands = new NumberSpinner({
+				value: 25,
+				constraints: { min: 1, places: 0 }
+			}, 'totalLands');
+			app.totalLands.startup();
 
-				var totalSymbols = w + ww + u + uu + b + bb + r + rr + g + gg;
+			app.submitButton = new Button({
+				label: 'Submit'
+			}, 'submitButton');
+			app.submitButton.startup();
+
+			// Hook the submit button up to do work.
+			app.submitButton.set("onClick", function(evt) {
+				// Grab the mana symbol quantities from the widgets.
+				var mana = getManaSymbolQuantities();
+
+				var totalSymbols = mana.w + mana.u + mana.b + mana.r + mana.g;
 				if (totalSymbols === 0) {
 					var noSymbolDialog = new Dialog({
 						title: "Invalid Input",
@@ -65,24 +125,14 @@ define([ 'dojo/has', 'require' ], function (has, require) {
 					return;
 				}
 
-				var totalW = w + (ww * 1.5);
-				var totalU = u + (uu * 1.5);
-				var totalB = b + (bb * 1.5);
-				var totalR = r + (rr * 1.5);
-				var totalG = g + (gg * 1.5);
-				var total = totalW + totalU + totalB + totalR + totalG;
+				// Figure out the land quantities based on the mana symbol quantities
+				lands = manaSymbolsToLandQuantities(mana, totalSymbols, app.totalLands.getValue());
 
-				var plains = (totalW / total) * dom.byId("totalLands").value;
-				var island = (totalU / total) * dom.byId("totalLands").value;
-				var swamp = (totalB / total) * dom.byId("totalLands").value;
-				var mountain = (totalR / total) * dom.byId("totalLands").value;
-				var forest = (totalG  / total) * dom.byId("totalLands").value;
-
-				dom.byId("numPlains").innerHTML = "Plains: " + plains;
-				dom.byId("numIslands").innerHTML = "Islands: " + island;
-				dom.byId("numSwamps").innerHTML = "Swamps: " + swamp;
-				dom.byId("numMountains").innerHTML = "Mountains: " + mountain;
-				dom.byId("numForests").innerHTML = "Forests: " + forest;
+				dom.byId('numPlains').innerHTML = "Plains: " + lands.numPlains;
+				dom.byId('numIslands').innerHTML = "Islands: " + lands.numIslands;
+				dom.byId('numSwamps').innerHTML = "Swamps: " + lands.numSwamps;
+				dom.byId('numMountains').innerHTML = "Mountains: " + lands.numMountains;
+				dom.byId('numForests').innerHTML = "Forests: " + lands.numForests;
 			});
 		});
 	}
