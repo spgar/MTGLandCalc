@@ -85,33 +85,26 @@ define(['dojo/has', 'require'], function(has, require) {
 
 	// This only runs in the browser.
 	if (has('host-browser')) {
-		require(['dojo/dom', './widgets/ManaSymbolQuantity', 'dijit/Dialog', 'dijit/form/NumberSpinner', 'dijit/form/Button', 'dojo/domReady!'], function(dom, ManaSymbolQuantity, Dialog, NumberSpinner, Button)
+		require(['dojo/dom', './widgets/ManaSymbolQuantity', 'dijit/Dialog', 'dijit/form/NumberSpinner', 'dijit/form/Button', 'dojo/parser', 'dojo/domReady!'], function(dom, ManaSymbolQuantity, Dialog, NumberSpinner, Button, parser)
 		{
+			// Parse the XML
+			parser.parse();
+
 			// Initialize the 5 mana symbol quantity widgets
-			app.msWhite = new ManaSymbolQuantity({color: 'W'}).placeAt(document.body);
-			app.msBlue = new ManaSymbolQuantity({ color: 'U' }).placeAt(document.body);
-			app.msBlack = new ManaSymbolQuantity({ color: 'B' }).placeAt(document.body);
-			app.msRed = new ManaSymbolQuantity({ color: 'R' }).placeAt(document.body);
-			app.msGreen = new ManaSymbolQuantity({ color: 'G' }).placeAt(document.body);
+			var manaWidgetContainer = dom.byId("manaWidgetContainer");
+			app.msWhite = new ManaSymbolQuantity({color: 'W'}).placeAt(manaWidgetContainer);
+			app.msBlue = new ManaSymbolQuantity({ color: 'U' }).placeAt(manaWidgetContainer);
+			app.msBlack = new ManaSymbolQuantity({ color: 'B' }).placeAt(manaWidgetContainer);
+			app.msRed = new ManaSymbolQuantity({ color: 'R' }).placeAt(manaWidgetContainer);
+			app.msGreen = new ManaSymbolQuantity({ color: 'G' }).placeAt(manaWidgetContainer);
 			app.msWhite.startup();
 			app.msBlue.startup();
 			app.msBlack.startup();
 			app.msRed.startup();
 			app.msGreen.startup();
 
-			app.totalLands = new NumberSpinner({
-				value: 25,
-				constraints: { min: 1, places: 0 }
-			}, 'totalLands');
-			app.totalLands.startup();
-
-			app.submitButton = new Button({
-				label: 'Submit'
-			}, 'submitButton');
-			app.submitButton.startup();
-
 			// Hook the submit button up to do work.
-			app.submitButton.set("onClick", function(evt) {
+			dojo.connect(dom.byId("submitButton"), "onclick", function(evt) {
 				// Grab the mana symbol quantities from the widgets.
 				var mana = getManaSymbolQuantities();
 
@@ -126,7 +119,7 @@ define(['dojo/has', 'require'], function(has, require) {
 				}
 
 				// Figure out the land quantities based on the mana symbol quantities
-				lands = manaSymbolsToLandQuantities(mana, totalSymbols, app.totalLands.getValue());
+				lands = manaSymbolsToLandQuantities(mana, totalSymbols, dom.byId("totalLands").value);
 
 				dom.byId('numPlains').innerHTML = "Plains: " + lands.numPlains;
 				dom.byId('numIslands').innerHTML = "Islands: " + lands.numIslands;
