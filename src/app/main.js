@@ -102,11 +102,11 @@ define(['dojo/has', 'require'], function(has, require) {
 
 			// Initialize the 5 mana symbol quantity widgets
 			var manaWidgetContainer = dom.byId("manaWidgetContainer");
-			app.msWhite = new ManaSymbolQuantity({color: 'W'}).placeAt(manaWidgetContainer);
-			app.msBlue = new ManaSymbolQuantity({ color: 'U' }).placeAt(manaWidgetContainer);
-			app.msBlack = new ManaSymbolQuantity({ color: 'B' }).placeAt(manaWidgetContainer);
-			app.msRed = new ManaSymbolQuantity({ color: 'R' }).placeAt(manaWidgetContainer);
-			app.msGreen = new ManaSymbolQuantity({ color: 'G' }).placeAt(manaWidgetContainer);
+			app.msWhite = new ManaSymbolQuantity({color: 'w'}).placeAt(manaWidgetContainer);
+			app.msBlue = new ManaSymbolQuantity({ color: 'u' }).placeAt(manaWidgetContainer);
+			app.msBlack = new ManaSymbolQuantity({ color: 'b' }).placeAt(manaWidgetContainer);
+			app.msRed = new ManaSymbolQuantity({ color: 'r' }).placeAt(manaWidgetContainer);
+			app.msGreen = new ManaSymbolQuantity({ color: 'g' }).placeAt(manaWidgetContainer);
 			app.msWhite.startup();
 			app.msBlue.startup();
 			app.msBlack.startup();
@@ -131,11 +131,11 @@ define(['dojo/has', 'require'], function(has, require) {
 				// Figure out the land quantities based on the mana symbol quantities
 				lands = manaSymbolsToLandQuantities(mana, totalSymbols, dom.byId("totalLands").value);
 
-				dom.byId('numPlains').innerHTML = "Plains: " + lands.numPlains;
-				dom.byId('numIslands').innerHTML = "Islands: " + lands.numIslands;
-				dom.byId('numSwamps').innerHTML = "Swamps: " + lands.numSwamps;
-				dom.byId('numMountains').innerHTML = "Mountains: " + lands.numMountains;
-				dom.byId('numForests').innerHTML = "Forests: " + lands.numForests;
+				dom.byId('numPlains').innerHTML = lands.numPlains;
+				dom.byId('numIslands').innerHTML = lands.numIslands;
+				dom.byId('numSwamps').innerHTML = lands.numSwamps;
+				dom.byId('numMountains').innerHTML = lands.numMountains;
+				dom.byId('numForests').innerHTML = lands.numForests;
 			});
 		});
 	}
