@@ -85,7 +85,17 @@ define(['dojo/has', 'require'], function(has, require) {
 
 	// This only runs in the browser.
 	if (has('host-browser')) {
-		require(['dojo/dom', './widgets/ManaSymbolQuantity', 'dijit/Dialog', 'dijit/form/NumberSpinner', 'dijit/form/Button', 'dojo/parser', 'dojo/domReady!'], function(dom, ManaSymbolQuantity, Dialog, NumberSpinner, Button, parser)
+		require(['dojo/dom',
+                 'dojo/parser',
+                 './widgets/ManaSymbolQuantity', 
+                 'dijit/Dialog',
+                 'dijit/form/NumberSpinner',
+                 'dijit/form/Button',
+                 'dijit/layout/BorderContainer',
+                 'dijit/layout/ContentPane',
+                 'dojo/domReady!'
+                 ], 
+        function(dom, parser, ManaSymbolQuantity, Dialog)
 		{
 			// Parse the XML
 			parser.parse();
