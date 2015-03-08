@@ -20,6 +20,7 @@
 define(['dojo/has', 'require'], function(has, require) {
 	var app = {};
 
+    // Returns a struct with the raw quantity values for each color.
 	function getManaSymbolQuantities() {
 		var doubleSymbolMultiplier = 1.5;
 		return {
@@ -31,55 +32,47 @@ define(['dojo/has', 'require'], function(has, require) {
 		};
 	}
 
-	function getIndexOfMaxValue(arr) {
-		var currentMax = arr[0];
-		var currentIndex = 0;
-
-		for (var i = 1; i < arr.length; ++i) {
-			if (arr[i] > currentMax) {
-				currentIndex = i;
-				currentMax = arr[i];
-			}
-		}
-		return currentIndex;
-	}
-
+    // Based on the total mana symbols provided and the total lands, return a struct with the quantity of each
+    // land that we want to display to the user.
 	function manaSymbolsToLandQuantities(mana, totalSymbols, totalLands) {
 		// Basic initial calculation.
-		var plains = (mana.w / totalSymbols) * totalLands;
-		var islands = (mana.u / totalSymbols) * totalLands;
-		var swamps = (mana.b / totalSymbols) * totalLands;
-		var mountains = (mana.r / totalSymbols) * totalLands;
-		var forests = (mana.g / totalSymbols) * totalLands;
+		var initialPlains = (mana.w / totalSymbols) * totalLands;
+		var initialIslands = (mana.u / totalSymbols) * totalLands;
+		var initialSwamps = (mana.b / totalSymbols) * totalLands;
+		var initialMountains = (mana.r / totalSymbols) * totalLands;
+		var initialForests = (mana.g / totalSymbols) * totalLands;
 
-		// At this point we need to deal with fractions.
-		var floorPlains = Math.floor(plains);
-		var floorIslands = Math.floor(islands);
-		var floorSwamps = Math.floor(swamps);
-		var floorMountains = Math.floor(mountains);
-		var floorForests = Math.floor(forests);
+		// At this point we need to deal with fractions. We will floor out the fractions and then bump them up based on
+        // the largest remaining fraction until we are at the total number of lands required.
+		var plains = Math.floor(initialPlains);
+		var islands = Math.floor(initialIslands);
+		var swamps = Math.floor(initialSwamps);
+		var mountains = Math.floor(initialMountains);
+		var forests = Math.floor(initialForests);
 
-		while (floorPlains + floorIslands + floorSwamps + floorMountains + floorForests < totalLands) {
-			var indexToBump = getIndexOfMaxValue([plains - floorPlains, islands - floorIslands, swamps - floorSwamps, mountains - floorMountains, forests - floorForests]);
+		while (plains + islands + swamps + mountains + forests < totalLands) {
+            var fractionArray = [initialPlains - plains, initialIslands - islands, initialSwamps - swamps, initialMountains - mountains, initialForests - forests];
+            var indexToBump = fractionArray.indexOf(Math.max.apply(Math, fractionArray));
+            
 			if (indexToBump == 0) {
-				++floorPlains;
+				++plains;
 			} else if (indexToBump == 1) {
-				++floorIslands;
+				++islands;
 			} else if (indexToBump == 2) {
-				++floorSwamps;
+				++swamps;
 			} else if (indexToBump == 3) {
-				++floorMountains;
+				++mountains;
 			} else if (indexToBump == 4) {
-				++floorForests;
+				++forests;
 			}
 		}
 
 		return {
-			numPlains: floorPlains,
-			numIslands: floorIslands,
-			numSwamps: floorSwamps,
-			numMountains: floorMountains,
-			numForests: floorForests
+			numPlains: plains,
+			numIslands: islands,
+			numSwamps: swamps,
+			numMountains: mountains,
+			numForests: forests
 		};
 	}
 
@@ -113,7 +106,7 @@ define(['dojo/has', 'require'], function(has, require) {
 			app.msRed.startup();
 			app.msGreen.startup();
 
-			// Hook the submit button up to do work.
+			// Hook the submit button up to do the work.
 			dojo.connect(dom.byId("submitButton"), "onclick", function(evt) {
 				// Grab the mana symbol quantities from the widgets.
 				var mana = getManaSymbolQuantities();
@@ -122,14 +115,14 @@ define(['dojo/has', 'require'], function(has, require) {
 				if (totalSymbols === 0) {
 					var noSymbolDialog = new Dialog({
 						title: "Invalid Input",
-						content: "Add at least one symbol."
+						content: "You need to add at least one mana symbol."
 					});
 					noSymbolDialog.show();
 					return;
 				}
 
 				// Figure out the land quantities based on the mana symbol quantities
-				lands = manaSymbolsToLandQuantities(mana, totalSymbols, dom.byId("totalLands").value);
+				var lands = manaSymbolsToLandQuantities(mana, totalSymbols, dom.byId("totalLands").value);
 
 				dom.byId('numPlains').innerHTML = lands.numPlains;
 				dom.byId('numIslands').innerHTML = lands.numIslands;
