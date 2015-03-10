@@ -121,6 +121,8 @@ define(['dojo/has', 'require'], function(has, require) {
 					return;
 				}
 
+                showLandsDialog.show();
+                
 				// Figure out the land quantities based on the mana symbol quantities
 				var lands = manaSymbolsToLandQuantities(mana, totalSymbols, dom.byId("totalLands").value);
 

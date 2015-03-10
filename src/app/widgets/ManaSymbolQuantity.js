@@ -15,7 +15,7 @@ define([
 		color: '',
 
         getManaSymbolURL: function() {
-            return 'http://mtgimage.com/symbol/mana/' + this.color + '/24.png';
+            return 'http://mtgimage.com/symbol/mana/' + this.color + '/48.png';
         },
         
         postCreate: function() {
